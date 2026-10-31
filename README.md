@@ -1,3 +1,25 @@
+> **Problem:** reading about SQL injection, XSS, IDOR, SSRF and broken authentication is not the same as seeing the vulnerable code next to the fixed code.
+>
+> **What this is:** an intentionally vulnerable local training app — each flaw shown twice, vulnerable and fixed, with tests.
+>
+> > **WARNING — LAB ONLY.** This app is deliberately insecure. Run it only on `127.0.0.1`, only on your own machine, only with the fictional data included here. Never expose it, never put real data or real credentials into it, never deploy it.
+>
+> **Who it is for:** learners and trainers who want a safe, local place to practise finding and fixing web flaws.
+>
+> **Quickstart:**
+>
+> ```bash
+> git clone https://github.com/ranas-mukminov/VulnLab-App.git
+> cd VulnLab-App
+> python3 -m unittest discover -s tests -v
+> python3 lab/server.py --mode vuln --port 12700
+> ```
+>
+> Then visit `http://127.0.0.1:12700/` and try the exercises in `docs/exercises.md`. **Sample result (verified):** tests `14 OK`; the local server homepage lists the routes `/search`, `/greet`, `/record`, `/fetch`, `/admin`.
+>
+[![CI](https://github.com/ranas-mukminov/VulnLab-App/actions/workflows/tests.yml/badge.svg)](https://github.com/ranas-mukminov/VulnLab-App/actions) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
+---
 # VulnLab-App
 
 An intentionally vulnerable application for local training only.
@@ -11,13 +33,15 @@ An intentionally vulnerable application for local training only.
 
 ## What is in the lab
 
-Three classic flaws, each shown twice: once vulnerable, once fixed.
+Five flaws, each shown twice: once vulnerable, once fixed.
 
 | # | Flaw | Vulnerable code | Fixed code |
 |---|---|---|---|
 | 1 | SQL injection | `lab/vuln.py` — query built with string formatting | `lab/fixed.py` — parameterised query |
 | 2 | Reflected cross-site scripting (XSS) | `lab/vuln.py` — user input rendered unescaped | `lab/fixed.py` — `html.escape` |
 | 3 | Insecure direct object reference (IDOR) | `lab/vuln.py` — any record readable by any caller | `lab/fixed.py` — ownership check, `PermissionError` otherwise |
+| 4 | Server-side request forgery (SSRF, simulated) | `lab/vuln.py` — internal hosts fetched | `lab/fixed.py` — allowlist, internal/metadata hosts rejected |
+| 5 | Broken authentication | `lab/vuln.py` — client-supplied role claim trusted | `lab/fixed.py` — issued token required |
 
 All data is fictional: users `lab-alice`, `lab-bob`, `lab-carol` with
 placeholder records. No real person, no real account, no real secret.
