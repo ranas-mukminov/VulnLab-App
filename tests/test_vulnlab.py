@@ -44,3 +44,27 @@ class TestIDOR(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestSSRF(unittest.TestCase):
+    def test_vuln_reaches_internal_host(self):
+        self.assertIn("internal lab record", vuln.fetch_url_vuln("http://169.254.169.254/lab"))
+
+    def test_fixed_rejects_internal_host(self):
+        with self.assertRaises(ValueError):
+            fixed.fetch_url_fixed("http://169.254.169.254/lab")
+
+    def test_fixed_allows_allowlisted_host(self):
+        self.assertIn("example.invalid", fixed.fetch_url_fixed("http://example.invalid/page"))
+
+
+class TestBrokenAuth(unittest.TestCase):
+    def test_vuln_trusts_role_claim(self):
+        self.assertEqual(vuln.access_admin_vuln("admin"), "admin panel lab content")
+
+    def test_fixed_rejects_role_claim(self):
+        with self.assertRaises(PermissionError):
+            fixed.access_admin_fixed("admin")
+
+    def test_fixed_accepts_issued_token(self):
+        self.assertEqual(fixed.access_admin_fixed("issued-lab-admin-token-7f3a"), "admin panel lab content")

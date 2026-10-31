@@ -20,6 +20,7 @@ def make_handler(mode):
     search = vuln.search_users_vuln if mode == "vuln" else fixed.search_users_fixed
     render = vuln.render_greeting_vuln if mode == "vuln" else fixed.render_greeting_fixed
     get_record = vuln.get_record_vuln if mode == "vuln" else fixed.get_record_fixed
+    fetch = vuln.fetch_url_vuln if mode == "vuln" else fixed.fetch_url_fixed
 
     class Handler(BaseHTTPRequestHandler):
         def log_message(self, *args):  # keep output quiet
@@ -35,6 +36,19 @@ def make_handler(mode):
                 self._send(body)
             elif parsed.path == "/greet":
                 self._send(render(qs.get("name", ["guest"])[0]))
+            elif parsed.path == "/fetch":
+                try:
+                    self._send(fetch(qs.get("url", [""])[0]))
+                except ValueError as exc:
+                    self._send(str(exc), status=400)
+            elif parsed.path == "/admin":
+                try:
+                    if mode == "vuln":
+                        self._send(vuln.access_admin_vuln(qs.get("role", [""])[0]))
+                    else:
+                        self._send(fixed.access_admin_fixed(qs.get("token", [""])[0]))
+                except PermissionError as exc:
+                    self._send(str(exc), status=403)
             elif parsed.path == "/record":
                 owner = qs.get("owner", [""])[0]
                 caller = qs.get("caller", [""])[0]
@@ -46,7 +60,9 @@ def make_handler(mode):
                 self._send(
                     "<h1>VulnLab-App (local lab only)</h1>"
                     "<p>Try /search?name=lab-alice, /greet?name=guest, "
-                    "/record?owner=lab-bob&amp;caller=lab-alice</p>"
+                    "/record?owner=lab-bob&amp;caller=lab-alice, "
+                    "/fetch?url=http://169.254.169.254/, "
+                    "/admin?role=admin (vuln) or /admin?token=issued-lab-admin-token-7f3a (fixed)</p>"
                     "<p>See docs/exercises.md. Never expose this server.</p>"
                 )
 

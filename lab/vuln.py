@@ -39,3 +39,27 @@ def get_record_vuln(record_owner, caller):
     """VULNERABLE: no ownership check (IDOR) — any caller reads any record."""
     records = {name: record for name, _, record in FICTIONAL_USERS}
     return records.get(record_owner)
+
+
+from urllib.parse import urlparse
+
+# Simulated internal hosts. No real network request is ever made:
+# fetch_url_vuln returns a canned string, which is enough to show
+# that an unvalidated URL reaches an internal address in the lab.
+INTERNAL_HOSTS = {"169.254.169.254", "metadata.google.internal", "localhost", "127.0.0.1"}
+
+
+def fetch_url_vuln(url):
+    """VULNERABLE (SSRF): any URL is accepted, including internal hosts."""
+    host = urlparse(url).hostname or ""
+    if host in INTERNAL_HOSTS or host.endswith(".internal"):
+        return f"internal lab record for {host}"
+    return f"fetched lab page from {url}"
+
+
+def access_admin_vuln(role_claim):
+    """VULNERABLE (broken authentication): a client-supplied role claim
+    is trusted. Claiming 'admin' opens the admin panel."""
+    if role_claim == "admin":
+        return "admin panel lab content"
+    return "denied"

@@ -1,0 +1,82 @@
+title: VulnLab — SQL Injection Pattern In Web Log
+id: lab-vuln-001
+status: experimental
+description: Lab-format rule for SQL syntax in a search parameter.
+logsource:
+  product: vulnlab
+  service: web
+detection:
+  selection:
+    uri|contains: "' OR '"
+  condition: selection
+level: high
+tags:
+  - attack.initial_access
+  - attack.t1190
+---
+title: VulnLab — Script Tag In Greeting Parameter
+id: lab-vuln-002
+status: experimental
+description: Lab-format rule for an unescaped script tag in a query parameter.
+logsource:
+  product: vulnlab
+  service: web
+detection:
+  selection:
+    uri|contains: '<script>'
+  condition: selection
+level: high
+tags:
+  - attack.initial_access
+  - attack.t1189
+---
+title: VulnLab — Record Access Where Caller Differs From Owner
+id: lab-vuln-003
+status: experimental
+description: Lab-format rule for IDOR-style access. In the lab log format, caller and owner are separate fields.
+logsource:
+  product: vulnlab
+  service: web
+detection:
+  selection:
+    uri|contains: '/record'
+  filter:
+    caller: 'owner'
+  condition: selection and not filter
+level: medium
+tags:
+  - attack.t1078
+---
+title: VulnLab — Outbound Fetch To Internal Host
+id: lab-vuln-004
+status: experimental
+description: Lab-format rule for an SSRF-style fetch to a metadata or localhost host.
+logsource:
+  product: vulnlab
+  service: web
+detection:
+  selection:
+    uri|contains:
+      - '169.254.169.254'
+      - 'metadata.google.internal'
+  condition: selection
+level: high
+tags:
+  - attack.initial_access
+  - attack.t1190
+---
+title: VulnLab — Admin Access Without Issued Session
+id: lab-vuln-005
+status: experimental
+description: Lab-format rule for an admin-panel hit with a role claim and no issued token.
+logsource:
+  product: vulnlab
+  service: web
+detection:
+  selection:
+    uri|contains: '/admin'
+    uri|contains: 'role=admin'
+  condition: selection
+level: medium
+tags:
+  - attack.t1078

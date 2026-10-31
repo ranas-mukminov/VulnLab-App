@@ -54,3 +54,8 @@ touching any real system.
   exercise ends with the fix, and the fix is the point.
 - It does not contain real credentials, real user data, or any
   connection to a production database or service.
+
+## Recent additions
+
+- New cases: SSRF (simulated, no real network request) and broken authentication (role claim vs issued token), each with vulnerable and fixed versions, tests, and server routes (`/fetch`, `/admin`).
+- `docs/attack-mapping.md` and `detections/sigma-rules.yml`: illustrative MITRE ATT&CK mapping and Sigma-style detection rules in lab log format.

@@ -33,3 +33,26 @@ Lesson: authorisation is checked on the server, per object, per request
 Write down, in one sentence each: what the flaw was, why the fix works,
 and what test would catch a regression. That sentence is the deliverable
 of the exercise, not the exploit.
+
+
+## 4. SSRF (simulated, no real fetch)
+
+Vulnerable: `http://127.0.0.1:12700/fetch?url=http://169.254.169.254/`
+returns an internal lab record, because the URL is never validated.
+Fixed: the same request returns 400, because only allowlisted hosts
+are accepted. The lab never makes a real network request in either
+mode — the vulnerable version returns a canned string, which is
+enough to demonstrate the missing validation.
+
+Lesson: validate and allowlist outbound URLs; never let user input
+choose an internal address.
+
+## 5. Broken authentication
+
+Vulnerable: `http://127.0.0.1:12700/admin?role=admin` opens the
+admin panel, because a client-supplied role claim is trusted.
+Fixed: `http://127.0.0.1:12700/admin?token=issued-lab-admin-token-7f3a`
+is required — a role claim alone returns 403.
+
+Lesson: authorisation is decided server-side from an issued
+session, never from a value the client asserts about itself.
